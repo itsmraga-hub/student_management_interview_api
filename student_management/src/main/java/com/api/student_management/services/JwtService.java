@@ -1,5 +1,6 @@
 package com.api.student_management.services;
 
+import com.api.student_management.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -7,15 +8,19 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
+//import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
+//@Slf4j
 public class JwtService {
     @Value("${security.jwt.secret-key}")
     private String secretKey;
@@ -23,20 +28,31 @@ public class JwtService {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(JwtService.class);
+//    public String extractUsername(String token) {
+//        return extractClaim(token, Claims::getSubject);
+//    }
+
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        return extractClaim(token, claims -> claims.get("email", String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
+        logger.info("Extracting claims  from token");
+        logger.info("claims: {}", claims);
+        logger.info("claimsResolver: {}", claimsResolver.apply(claims));
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(User userDetails) {
+        logger.info("userDetails: {}", userDetails);
+        Map<String, Object> extraClaims = Map.of("email", userDetails.getEmail());
+        return generateToken(extraClaims, userDetails);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> extraClaims, User userDetails) {
+
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
@@ -59,9 +75,16 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, Optional<User> userDetails) {
+
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        logger.info("userDetails: {}", userDetails.get().getEmail());
+        logger.info("username: {}", username);
+        logger.info("isTokenExpired: {}", isTokenExpired(token));
+//        log.info("userDetails: {}", userDetails);
+        logger.info("username.equals(userDetails.getUsername()): {}", username.equals(userDetails.get().getEmail()));
+//        logger.info("isTokenValid: {}", username.equals(userDetails.getUsername()) &&!isTokenExpired(token));
+        return (username.equals(userDetails.get().getEmail())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
