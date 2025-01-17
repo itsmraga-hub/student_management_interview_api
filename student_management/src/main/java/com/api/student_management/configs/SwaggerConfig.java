@@ -1,22 +1,31 @@
 package com.api.student_management.configs;
 
-//import org.springframework.context.annotation.Configuration;
-//
-//import springfox.documentation.builders.PathSelectors;
-//import springfox.documentation.builders.RequestHandlerSelectors;
-//import springfox.documentation.spi.DocumentationType;
-//import springfox.documentation.spring.web.plugins.Docket;
-//import springfox.documentation.swagger2.annotations.EnableSwagger2;
-//
-//@Configuration
-//@EnableSwagger2
-//public class SwaggerConfig {
-//
-//    public Docket SwaggerApi() {
-//        return new Docket(DocumentationType.SWAGGER_2)
-//                .select()
-//                .apis(RequestHandlerSelectors.any())
-//                .paths(PathSelectors.any())
-//                .build();
-//    }
-//}
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@OpenAPIDefinition(info = @Info(title = "My API", version = "v1", description = "API for authentication and other services"))
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT"
+)
+public class SwaggerConfig {
+
+    @Bean
+    public GroupedOpenApi publicApi() {
+        return GroupedOpenApi.builder()
+                .group("public")
+                .pathsToMatch("/**")
+                .addOpenApiCustomizer(openApi -> openApi.info(new io.swagger.v3.oas.models.info.Info().title("Public API").version("1.0")))
+                .build();
+    }
+
+
+}
