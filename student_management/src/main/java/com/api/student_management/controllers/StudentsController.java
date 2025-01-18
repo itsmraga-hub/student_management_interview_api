@@ -62,9 +62,6 @@ public class StudentsController {
     ) throws IOException {
         response.setContentType("application/octet-stream");
 
-        // Excel file will be generated and saved to C:\Users\admin\Downloads as
-        // 'employee.xls'
-
         String headerKey = "Content-Disposition";
         String headerValue = "attachment;filename=students.xlsx";
         response.setHeader(headerKey, headerValue);
