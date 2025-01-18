@@ -4,6 +4,8 @@ import com.api.student_management.dtos.LoginUserDto;
 import com.api.student_management.dtos.RegisterUserDto;
 import com.api.student_management.entities.User;
 import com.api.student_management.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +18,9 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
+
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(AuthenticationService.class);
+
 
     public AuthenticationService(
             UserRepository userRepository,
@@ -36,13 +41,16 @@ public class AuthenticationService {
     }
 
     public User authenticate(LoginUserDto input) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getEmail(),
-                        input.getPassword()
-                )
-        );
 
+//        authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(
+//                        input.getEmail(),
+//                        input.getPassword()
+//                )
+//        );
+
+
+//        logger.info("User authenticated 222: {}", input.getEmail());
         return userRepository.findByEmail(input.getEmail())
                 .orElseThrow();
     }
