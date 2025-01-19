@@ -64,18 +64,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String userEmail = jwtService.extractUsername(jwt);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println("userEmail");
-            System.out.println("jwt");
-            System.out.println(userEmail);
-            System.out.println(jwt);
-            System.out.println(authentication);
+//            System.out.println("userEmail");
+//            System.out.println("jwt");
+//            System.out.println(userEmail);
+//            System.out.println(jwt);
+//            System.out.println(authentication);
             if (userEmail != null && authentication == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
                 Optional<User> user = userRepository.findByEmail(userEmail);
-                logger.info("User: {}", user);
-                logger.info("User: {}", userDetails.getUsername());
-                logger.info("User: {}", userDetails.getAuthorities());
-                logger.info("User: {}", userDetails.getPassword());
+//                logger.info("User: {}", user);
+//                logger.info("User: {}", userDetails.getUsername());
+//                logger.info("User: {}", userDetails.getAuthorities());
+//                logger.info("User: {}", userDetails.getPassword());
                 if(user.isPresent()) {
                     if (jwtService.isTokenValid(jwt, user)) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -83,9 +83,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 null,
                                 userDetails.getAuthorities()
                         );
-                        logger.info("authToken: {}", authToken);
+//                        logger.info("authToken: {}", authToken);
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        logger.info("authToken: {}", authToken);
+//                        logger.info("authToken: {}", authToken);
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }
