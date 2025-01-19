@@ -93,6 +93,12 @@ public class StudentsController {
         return studentRepository.findByStatus(1);
     }
 
+    @GetMapping("/sql/{id}")
+
+    public @ResponseBody Student readMySQLStudent(@PathVariable Long id) {
+        return studentRepository.findById(id).orElse(null);
+    }
+
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteStudents() {
         studentRepository.deleteAll();
