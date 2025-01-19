@@ -39,14 +39,14 @@ public class JwtService {
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
-        logger.info("Extracting claims  from token");
-        logger.info("claims: {}", claims);
-        logger.info("claimsResolver: {}", claimsResolver.apply(claims));
+//        logger.info("Extracting claims  from token");
+//        logger.info("claims: {}", claims);
+//        logger.info("claimsResolver: {}", claimsResolver.apply(claims));
         return claimsResolver.apply(claims);
     }
 
     public String generateToken(User userDetails) {
-        logger.info("userDetails: {}", userDetails);
+//        logger.info("userDetails: {}", userDetails);
         Map<String, Object> extraClaims = Map.of("email", userDetails.getEmail());
         return generateToken(extraClaims, userDetails);
     }
@@ -78,11 +78,11 @@ public class JwtService {
     public boolean isTokenValid(String token, Optional<User> userDetails) {
 
         final String username = extractUsername(token);
-        logger.info("userDetails: {}", userDetails.get().getEmail());
-        logger.info("username: {}", username);
-        logger.info("isTokenExpired: {}", isTokenExpired(token));
+//        logger.info("userDetails: {}", userDetails.get().getEmail());
+//        logger.info("username: {}", username);
+//        logger.info("isTokenExpired: {}", isTokenExpired(token));
 //        log.info("userDetails: {}", userDetails);
-        logger.info("username.equals(userDetails.getUsername()): {}", username.equals(userDetails.get().getEmail()));
+//        logger.info("username.equals(userDetails.getUsername()): {}", username.equals(userDetails.get().getEmail()));
 //        logger.info("isTokenValid: {}", username.equals(userDetails.getUsername()) &&!isTokenExpired(token));
         return (username.equals(userDetails.get().getEmail())) && !isTokenExpired(token);
     }
