@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService {
     private final UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
 
@@ -25,7 +26,7 @@ public class AuthenticationService {
     public AuthenticationService(
             UserRepository userRepository,
             AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder
+            BCryptPasswordEncoder passwordEncoder
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
@@ -42,6 +43,16 @@ public class AuthenticationService {
 
     public User authenticate(LoginUserDto input) {
 
+        User user = userRepository.findByEmail(input.getEmail())
+                .orElseThrow();
+
+        var pass = passwordEncoder.encode(input.getPassword());
+//        logger.info("Password: {}",pass);
+//        logger.info("User password: {}",user.getPassword());
+
+        if (!passwordEncoder.matches(input.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
 //        authenticationManager.authenticate(
 //                new UsernamePasswordAuthenticationToken(
 //                        input.getEmail(),
@@ -51,7 +62,6 @@ public class AuthenticationService {
 
 
 //        logger.info("User authenticated 222: {}", input.getEmail());
-        return userRepository.findByEmail(input.getEmail())
-                .orElseThrow();
+        return user;
     }
 }
