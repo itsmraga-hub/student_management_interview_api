@@ -1,5 +1,6 @@
 package com.api.student_management.controllers;
 
+import com.api.student_management.dtos.UploadPhotoResponseDTO;
 import com.api.student_management.entities.Student;
 import com.api.student_management.repositories.StudentRepository;
 import com.api.student_management.services.StudentService;
@@ -39,7 +40,7 @@ public class StudentsController {
         this.studentService = studentService;
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<List<Student>> getStudents() {
         return ResponseEntity.ok(studentRepository.findByStatus(1));
     }
@@ -49,7 +50,7 @@ public class StudentsController {
         return ResponseEntity.ok(studentRepository.findByStatus(0));
     }
 
-    @PostMapping("/")
+    @PostMapping()
     public String addStudent() {
         return "Student added";
     }
@@ -58,7 +59,7 @@ public class StudentsController {
 //    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<String> generateStudents(
             HttpServletResponse response,
-            @RequestBody() int count
+            @RequestParam() int count
     ) throws IOException {
         response.setContentType("application/octet-stream");
 
@@ -99,13 +100,13 @@ public class StudentsController {
         return studentRepository.findById(id).orElse(null);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/")
     public ResponseEntity<String> deleteStudents() {
         studentRepository.deleteAll();
         return ResponseEntity.ok("Students deleted");
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteStudent(@PathVariable Long id) {
         Student student = studentRepository.findById(id).orElse(null);
         if (student == null) {
@@ -132,38 +133,49 @@ public class StudentsController {
 //    }
 
 
-     @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateStudent(@PathVariable Long id, @RequestBody Student student, @RequestParam("file") MultipartFile file) {
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student student) {
+        logger.info("Updating student");
+        logger.info("Student: {}", student);
+
         Student studentToUpdate = studentRepository.findById(id).orElse(null);
         if (studentToUpdate == null) {
-            return ResponseEntity.ok("Student not found");
+            return ResponseEntity.ok(student);
         }
         studentToUpdate.setFirstName(student.getFirstName());
         studentToUpdate.setLastName(student.getLastName());
         studentToUpdate.setScore(student.getScore());
         studentRepository.save(studentToUpdate);
 
-         try {
-             // Save the file to the directory
-             String filePath = saveImage(file, id.toString());
-             student.setPhotoPath(filePath);
-             studentRepository.save(studentToUpdate);
-             return ResponseEntity.ok("Student updated");
-//             return ResponseEntity.ok("Image uploaded successfully: " + filePath);
-         } catch (IOException e) {
-             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading image");
-         }
+        return ResponseEntity.ok(student);
+    }
 
+    @PostMapping("/upload/{id}")
+    public ResponseEntity<UploadPhotoResponseDTO> updateStudentPhoto(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+
+
+        Student studentToUpdate = studentRepository.findById(id).orElse(null);
+        if (studentToUpdate == null) {
+            return ResponseEntity.ok(new UploadPhotoResponseDTO("Student not found", null));
+        }
+        try {
+//            logger.info("Updating student");
+//            logger.info("File: {}", file.getOriginalFilename());
+//            logger.info("ID: {}", id);
+//            logger.info("File size: {}", file.getSize());
+//            logger.info("File type: {}", file.getContentType());
+            String filePath = saveImage(file, id.toString());
+            return ResponseEntity.ok(new UploadPhotoResponseDTO("Image uploaded successfully", filePath));
+        } catch (IOException e) {
+            ResponseEntity.ok(new UploadPhotoResponseDTO("Error uploading image", null));
+        }
+        return ResponseEntity.ok(new UploadPhotoResponseDTO("Failed to upload Photo", null));
     }
 
 
-
-
-
-
-    @PostMapping("/csv/save")
+    @PostMapping("/csv")
     public  ResponseEntity<String> saveToCSVFile() {
-        logger.info("Saving students to CSV file");
+//        logger.info("Saving students to CSV file");
         List<Student> students = studentService.readExcelSheet();
         studentService.saveStudentsToCsv(students);
         return ResponseEntity.ok("Students saved to CSV file");
@@ -172,11 +184,11 @@ public class StudentsController {
 
     @PostMapping("/db/save")
     public  ResponseEntity<String> saveToDatabase() {
-        logger.info("Saving students to CSV file");
+//        logger.info("Saving students to CSV file");
         List<Student> excelStudents = studentService.readExcelSheet();
         List<Student> students = new ArrayList<>();
-        logger.info("Saved students to CSV file");
-        logger.info("Updating student scores");
+//        logger.info("Saved students to CSV file");
+//        logger.info("Updating student scores");
         for (Student student : excelStudents) {
             student.setStudentId(null);
             student.setScore(student.getScore() + 5);
