@@ -2,6 +2,7 @@ package com.api.student_management.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,8 +33,8 @@ public class Student {
 
     public Student() {
 //        this.studentId = idCounter++;
-        this.firstName = generateRandomString(3, 8);
-        this.lastName = generateRandomString(3, 8);
+        this.firstName = generateRandomString();
+        this.lastName = generateRandomString();
         this.DOB = generateRandomDOB().atStartOfDay();
         this.studentClass = generateRandomClass();
         this.score = generateRandomScore(55, 85);
@@ -41,8 +42,8 @@ public class Student {
         this.photoPath = ""; // Default to empty
     }
 
-    private String generateRandomString(int minLength, int maxLength) {
-        int length = ThreadLocalRandom.current().nextInt(minLength, maxLength + 1);
+    private String generateRandomString() {
+        int length = ThreadLocalRandom.current().nextInt(3, 8 + 1);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
             char randomChar = (char) ('a' + ThreadLocalRandom.current().nextInt(0, 26));
@@ -60,7 +61,7 @@ public class Student {
     }
 
     private String generateRandomClass() {
-        String[] classes = {"Class1", "Class2", "Class3", "Class4", "Class5"};
+        String[] classes = {"Class 1", "Class 2", "Class 3", "Class 4", "Class 5"};
         int randomIndex = ThreadLocalRandom.current().nextInt(classes.length);
         return classes[randomIndex];
     }

@@ -26,35 +26,35 @@ public class ImageUploadController {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    @PostMapping("/images")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
-        try {
-            // Save the file to the directory
-            String filePath = saveImage(file);
-            return ResponseEntity.ok("Image uploaded successfully: " + filePath);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading image");
-        }
-    }
+//    @PostMapping("/images")
+//    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+//        try {
+//            // Save the file to the directory
+//            String filePath = saveImage(file);
+//            return ResponseEntity.ok("Image uploaded successfully: " + filePath);
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading image");
+//        }
+//    }
 
-    private String saveImage(MultipartFile file) throws IOException {
-        String contentType = file.getContentType();
-        assert contentType != null;
-        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-            throw new IllegalArgumentException("Only JPEG or PNG images are allowed");
-        }
-        Path uploadPath = Paths.get(uploadDir);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        String fileName = file.getOriginalFilename();
-        assert fileName != null;
-        Path filePath = uploadPath.resolve("some_string" + fileName);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return filePath.toString();
-    }
+//    private String saveImage(MultipartFile file) throws IOException {
+//        String contentType = file.getContentType();
+//        assert contentType != null;
+//        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+//            throw new IllegalArgumentException("Only JPEG or PNG images are allowed");
+//        }
+//        Path uploadPath = Paths.get(uploadDir);
+//        if (!Files.exists(uploadPath)) {
+//            Files.createDirectories(uploadPath);
+//        }
+//
+//        String fileName = file.getOriginalFilename();
+//        assert fileName != null;
+//        Path filePath = uploadPath.resolve("some_string" + fileName);
+//        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+//
+//        return filePath.toString();
+//    }
 
     @GetMapping("/images/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
