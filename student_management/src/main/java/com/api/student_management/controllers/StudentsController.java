@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/students")
 @RestController
@@ -56,24 +57,19 @@ public class StudentsController {
     }
 
     @PostMapping("/generate")
-//    @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<String> generateStudents(
+    public ResponseEntity<Map<String, String>> generateStudents(
             HttpServletResponse response,
             @RequestParam() int count
     ) throws IOException {
-        response.setContentType("application/octet-stream");
-
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment;filename=students.xlsx";
-        response.setHeader(headerKey, headerValue);
-        List<Student> students = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            Student student = new Student();
-            logger.info("Generated student: {}", student);
-            students.add(student);
-        }
-        studentService.generateStudentExcelSheet(response, students);
-        return ResponseEntity.ok("Generated " + count + " students");
+//        List<Student> students = new ArrayList<>();
+//        for (int i = 0; i < count; i++) {
+//            Student student = new Student();
+//            logger.info("Generated student: {}", student);
+//            students.add(student);
+//        }
+        studentService.generateStudentExcelSheet(response, count);
+        Map<String, String> responseMap = Map.of("message", "Generated " + count + " students");
+        return ResponseEntity.ok(responseMap);
     }
 
     @GetMapping("/excel")
@@ -107,30 +103,15 @@ public class StudentsController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteStudent(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteStudent(@PathVariable Long id) {
         Student student = studentRepository.findById(id).orElse(null);
         if (student == null) {
-            return ResponseEntity.ok("Student not found");
+            return ResponseEntity.ok(Map.of("message", "Student not found"));
         }
         student.setStatus(0);
         studentRepository.save(student);
-//        studentRepository.deleteById(id);
-        return ResponseEntity.ok("Student deleted");
+        return ResponseEntity.ok(Map.of("message", "Student deleted"));
     }
-
-
-//    @PutMapping("/update/{id}")
-//    public ResponseEntity<String> updateStudent(@PathVariable Long id, @RequestBody Student student) {
-//        Student studentToUpdate = studentRepository.findById(id).orElse(null);
-//        if (studentToUpdate == null) {
-//            return ResponseEntity.ok("Student not found");
-//        }
-//        studentToUpdate.setFirstName(student.getFirstName());
-//        studentToUpdate.setLastName(student.getLastName());
-//        studentToUpdate.setScore(student.getScore());
-//        studentRepository.save(studentToUpdate);
-//        return ResponseEntity.ok("Student updated");
-//    }
 
 
     @PutMapping("/update/{id}")
@@ -145,6 +126,11 @@ public class StudentsController {
         studentToUpdate.setFirstName(student.getFirstName());
         studentToUpdate.setLastName(student.getLastName());
         studentToUpdate.setScore(student.getScore());
+        studentToUpdate.setPhotoPath(student.getPhotoPath());
+        studentToUpdate.setDOB(student.getDOB());
+        studentToUpdate.setStudentClass(student.getStudentClass());
+//        studentToUpdate.setStatus(1);
+
         studentRepository.save(studentToUpdate);
 
         return ResponseEntity.ok(student);
@@ -159,11 +145,6 @@ public class StudentsController {
             return ResponseEntity.ok(new UploadPhotoResponseDTO("Student not found", null));
         }
         try {
-//            logger.info("Updating student");
-//            logger.info("File: {}", file.getOriginalFilename());
-//            logger.info("ID: {}", id);
-//            logger.info("File size: {}", file.getSize());
-//            logger.info("File type: {}", file.getContentType());
             String filePath = saveImage(file, id.toString());
             return ResponseEntity.ok(new UploadPhotoResponseDTO("Image uploaded successfully", filePath));
         } catch (IOException e) {
@@ -173,22 +154,19 @@ public class StudentsController {
     }
 
 
-    @PostMapping("/csv")
-    public  ResponseEntity<String> saveToCSVFile() {
-//        logger.info("Saving students to CSV file");
+    @PostMapping("/csv/save")
+    public  ResponseEntity<Map<String, String>> saveToCSVFile() {
         List<Student> students = studentService.readExcelSheet();
         studentService.saveStudentsToCsv(students);
-        return ResponseEntity.ok("Students saved to CSV file");
+        return ResponseEntity.ok(Map.of("message", students.size() + " students saved to CSV file"));
     }
 
 
     @PostMapping("/db/save")
-    public  ResponseEntity<String> saveToDatabase() {
-//        logger.info("Saving students to CSV file");
+    public  ResponseEntity<Map<String, String>> saveToDatabase() {
+        logger.info("Saving students to database");
         List<Student> excelStudents = studentService.readExcelSheet();
         List<Student> students = new ArrayList<>();
-//        logger.info("Saved students to CSV file");
-//        logger.info("Updating student scores");
         for (Student student : excelStudents) {
             student.setStudentId(null);
             student.setScore(student.getScore() + 5);
@@ -196,8 +174,7 @@ public class StudentsController {
         }
 
         studentRepository.saveAll(students);
-//        studentService.saveStudentsToCsv(students);
-        return ResponseEntity.ok("Students saved to Database");
+        return ResponseEntity.ok(Map.of("message", students.size() + " students saved to Database"));
     }
 
     private String saveImage(MultipartFile file, String studentId) throws IOException {
@@ -213,7 +190,7 @@ public class StudentsController {
 
         String fileName = file.getOriginalFilename();
         assert fileName != null;
-        Path filePath = uploadPath.resolve(studentId + fileName);
+        Path filePath = uploadPath.resolve(studentId + "-" + fileName.replace(" ", ""));
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         return filePath.toString();
