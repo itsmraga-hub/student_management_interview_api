@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @RequestMapping("/students")
 @RestController
@@ -56,21 +57,48 @@ public class StudentsController {
         return "Student added";
     }
 
+//    @PostMapping("/generate")
+//    public ResponseEntity<Map<String, String>> generateStudents(
+//            HttpServletResponse response,
+//            @RequestParam() int count
+//    ) throws IOException {
+//        studentService.generateStudentExcelSheet(response, count);
+//        Map<String, String> responseMap = Map.of("message", "Generated " + count + " students");
+//        return ResponseEntity.ok(responseMap);
+//    }
+
+    @PostMapping("/gen")
+    public CompletableFuture<ResponseEntity<Map<String, String>>> generateStudents(
+            @RequestParam() int count
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                logger.info("Generating students");
+                studentService.generateStudentExcelSheet(count);
+                logger.info("Students generated");
+                // If everything is successful, return the success message
+                return ResponseEntity.ok(Map.of("message", "Generated " + count + " students"));
+            } catch (IOException e) {
+                logger.error("Error generating student Excel sheet", e);
+                // Return an error response if something goes wrong
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("message", "Error generating student Excel sheet"));
+            }
+        });
+    }
+
+
     @PostMapping("/generate")
-    public ResponseEntity<Map<String, String>> generateStudents(
-            HttpServletResponse response,
+    public ResponseEntity<Map<String, String>> generateStudents2(
             @RequestParam() int count
     ) throws IOException {
-//        List<Student> students = new ArrayList<>();
-//        for (int i = 0; i < count; i++) {
-//            Student student = new Student();
-//            logger.info("Generated student: {}", student);
-//            students.add(student);
-//        }
-        studentService.generateStudentExcelSheet(response, count);
-        Map<String, String> responseMap = Map.of("message", "Generated " + count + " students");
-        return ResponseEntity.ok(responseMap);
+        studentService.generateStudentExcelSheet(count);
+        logger.info("Students generated");
+        // If everything is successful, return the success message
+        return ResponseEntity.ok(Map.of("message", "Generated " + count + " students"));
     }
+
+
 
     @GetMapping("/excel")
 
