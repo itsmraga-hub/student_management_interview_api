@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/students")
 @RestController
 @SecurityRequirement(name = "bearerAuth")
@@ -115,7 +117,14 @@ public class StudentsController {
     @GetMapping("/sql")
 
     public @ResponseBody List<Student> readMySQL() {
-        return studentRepository.findByStatus(1);
+        List<Student> students = studentRepository.findByStatus(1);
+        students.forEach(student -> {
+            String filename = new File(student.getPhotoPath()).getName();
+//            String imageUrl = "http://localhost:8080/images/" + student.getPhotoPath().replace("\\", "/");
+            String imageUrl = "http://localhost:8080/images/" + filename;
+            student.setPhotoPath(imageUrl); // Replace the file path with the URL
+        });
+        return students;
     }
 
     @GetMapping("/sql/{id}")

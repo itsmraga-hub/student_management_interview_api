@@ -118,6 +118,7 @@ public class SecurityConfiguration {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/auth/**","/auth/signup", "/auth/login","/auth/welcome", "/auth/addNewUser").permitAll()
+                                .requestMatchers("/images/**").permitAll()
                                 .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
                                 .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
