@@ -130,7 +130,14 @@ public class StudentsController {
     @GetMapping("/sql/{id}")
 
     public @ResponseBody Student readMySQLStudent(@PathVariable Long id) {
-        return studentRepository.findById(id).orElse(null);
+        Student student = studentRepository.findById(id).orElse(null);
+        if (student == null) {
+            return null;
+        }
+        String filename = new File(student.getPhotoPath()).getName();
+        String imageUrl = "http://localhost:8080/images/" + filename;
+        student.setPhotoPath(imageUrl); // Replace the file path with the URL
+        return student;
     }
 
     @DeleteMapping("/")
