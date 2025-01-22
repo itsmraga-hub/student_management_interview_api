@@ -106,19 +106,18 @@ public class SecurityConfiguration {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration corsConfiguration=new CorsConfiguration();
-                        corsConfiguration.setAllowCredentials(true);// allows taking authentication with credentials
+                        corsConfiguration.setAllowCredentials(true);
                         corsConfiguration.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:8080, http://localhost:3000"));
-                        // providing the allowed origin details, can provide multiple origins here, 7070 is the port number of client application here
-                        corsConfiguration.setAllowedMethods(Collections.singletonList("*"));// allowing all HTTP methods GET,POST,PUT etc, can configure on your need
-                        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));// allowing all the request headers, can configure according to your need, which headers to allow
-                        corsConfiguration.setMaxAge(Duration.ofMinutes(5L)); // setting the max time till which the allowed origin will not make a pre-flight request again to check if the CORS is allowed on not
+                        corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+                        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+                        corsConfiguration.setMaxAge(Duration.ofMinutes(5L));
                         return corsConfiguration;
                     }
                 }));
 
-        httpSecurity.csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless APIs
+        httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/auth/**","/auth/signup", "/auth/login","/auth/welcome", "/auth/addNewUser", "/auth/generateToken").permitAll()
+                                .requestMatchers("/auth/**","/auth/signup", "/auth/login","/auth/welcome", "/auth/addNewUser").permitAll()
                                 .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
                                 .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
