@@ -78,16 +78,20 @@ public class JwtService {
     public boolean isTokenValid(String token, Optional<User> userDetails) {
 
         final String username = extractUsername(token);
-//        logger.info("userDetails: {}", userDetails.get().getEmail());
+//        logger.info("userDetails: {}", userDetails.get().getUsername());
 //        logger.info("username: {}", username);
+//        logger.info(" username.equals(userDetails.get().getUsername()): {}",  username.equals(userDetails.get().getUsername()));
 //        logger.info("isTokenExpired: {}", isTokenExpired(token));
-//        log.info("userDetails: {}", userDetails);
+//        logger.info("userDetails: {}", userDetails);
 //        logger.info("username.equals(userDetails.getUsername()): {}", username.equals(userDetails.get().getEmail()));
-//        logger.info("isTokenValid: {}", username.equals(userDetails.getUsername()) &&!isTokenExpired(token));
+//        logger.info("isTokenValid111: {}", username.equals(userDetails.get().getEmail()) &&!isTokenExpired(token));
         return (username.equals(userDetails.get().getEmail())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
+//        logger.info("isTokenExpired: {}", extractExpiration(token).before(new Date()));
+//        logger.info("token: {}", token);
+//        logger.info("extractExpiration: {}", extractExpiration(token));
         return extractExpiration(token).before(new Date());
     }
 
