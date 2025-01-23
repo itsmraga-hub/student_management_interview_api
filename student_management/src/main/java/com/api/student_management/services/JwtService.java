@@ -8,6 +8,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -39,15 +40,12 @@ public class JwtService {
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
-//        logger.info("Extracting claims  from token");
-//        logger.info("claims: {}", claims);
-//        logger.info("claimsResolver: {}", claimsResolver.apply(claims));
         return claimsResolver.apply(claims);
     }
 
     public String generateToken(User userDetails) {
-//        logger.info("userDetails: {}", userDetails);
-        Map<String, Object> extraClaims = Map.of("email", userDetails.getEmail());
+        Map<String, Object> extraClaims = new HashMap<>(Map.of("email", userDetails.getEmail()));
+        extraClaims.put("id", userDetails.getId());
         return generateToken(extraClaims, userDetails);
     }
 
