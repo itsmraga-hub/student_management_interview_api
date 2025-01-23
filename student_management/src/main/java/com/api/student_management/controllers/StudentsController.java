@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-//@CrossOrigin(origins = "http://localhost:4200")
+
 @RequestMapping("/students")
 @RestController
 @SecurityRequirement(name = "bearerAuth")
@@ -59,15 +59,6 @@ public class StudentsController {
         return "Student added";
     }
 
-//    @PostMapping("/generate")
-//    public ResponseEntity<Map<String, String>> generateStudents(
-//            HttpServletResponse response,
-//            @RequestParam() int count
-//    ) throws IOException {
-//        studentService.generateStudentExcelSheet(response, count);
-//        Map<String, String> responseMap = Map.of("message", "Generated " + count + " students");
-//        return ResponseEntity.ok(responseMap);
-//    }
 
     @PostMapping("/gen")
     public CompletableFuture<ResponseEntity<Map<String, String>>> generateStudents(
@@ -75,32 +66,22 @@ public class StudentsController {
     ) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                logger.info("Generating students");
                 studentService.generateStudentExcelSheet(count);
-                logger.info("Students generated");
-                // If everything is successful, return the success message
                 return ResponseEntity.ok(Map.of("message", "Generated " + count + " students"));
             } catch (IOException e) {
-                logger.error("Error generating student Excel sheet", e);
-                // Return an error response if something goes wrong
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("message", "Error generating student Excel sheet"));
             }
         });
     }
 
-
     @PostMapping("/generate")
     public ResponseEntity<Map<String, String>> generateStudents2(
             @RequestParam() int count
     ) throws IOException {
         studentService.generateStudentExcelSheet(count);
-        logger.info("Students generated");
-        // If everything is successful, return the success message
         return ResponseEntity.ok(Map.of("message", "Generated " + count + " students"));
     }
-
-
 
     @GetMapping("/excel")
 
@@ -120,9 +101,8 @@ public class StudentsController {
         List<Student> students = studentRepository.findByStatus(1);
         students.forEach(student -> {
             String filename = new File(student.getPhotoPath()).getName();
-//            String imageUrl = "http://localhost:8080/images/" + student.getPhotoPath().replace("\\", "/");
             String imageUrl = "http://localhost:8080/images/" + filename;
-            student.setPhotoPath(imageUrl); // Replace the file path with the URL
+            student.setPhotoPath(imageUrl);
         });
         return students;
     }
@@ -136,7 +116,7 @@ public class StudentsController {
         }
         String filename = new File(student.getPhotoPath()).getName();
         String imageUrl = "http://localhost:8080/images/" + filename;
-        student.setPhotoPath(imageUrl); // Replace the file path with the URL
+        student.setPhotoPath(imageUrl);
         return student;
     }
 
@@ -190,7 +170,9 @@ public class StudentsController {
         }
         try {
             String filePath = saveImage(file, id.toString());
-            return ResponseEntity.ok(new UploadPhotoResponseDTO("Image uploaded successfully", filePath));
+            String filename = new File(filePath).getName();
+            String imageUrl = "http://localhost:8080/images/" + filename;
+            return ResponseEntity.ok(new UploadPhotoResponseDTO("Image uploaded successfully", imageUrl));
         } catch (IOException e) {
             ResponseEntity.ok(new UploadPhotoResponseDTO("Error uploading image", null));
         }
@@ -205,6 +187,44 @@ public class StudentsController {
         return ResponseEntity.ok(Map.of("message", students.size() + " students saved to CSV file"));
     }
 
+    @PutMapping("/draft")
+    public ResponseEntity<Student> saveDraft(@RequestBody Student draftStudent) {
+        logger.info("Saving draft");
+        logger.info("Draft student: {}", draftStudent);
+        Student savedDraft = studentService.saveDraft(draftStudent, draftStudent.getMakerUserId());
+        return ResponseEntity.ok(savedDraft);
+    }
+
+    @PutMapping("/approve")
+    public ResponseEntity<Student> approveChanges(
+            @RequestParam("studentId") Long studentId,
+            @RequestParam("checkerUserId") Integer checkerUserId
+    ) {
+
+        Student approvedStudent = studentService.approveChanges(studentId, checkerUserId);
+        return ResponseEntity.ok(approvedStudent);
+    }
+
+    @PutMapping("/reject")
+    public ResponseEntity<Student> rejectChanges(
+            @RequestParam("studentId") Long studentId,
+            @RequestParam("checkerUserId") Integer checkerUserId,
+            @RequestBody() String comments
+    ) {
+        logger.info("Rejecting changes");
+        logger.info("Comments: {}", comments);
+        Student rejectedStudent = studentService.rejectChanges(studentId, checkerUserId, comments);
+        return ResponseEntity.ok(rejectedStudent);
+    }
+
+    @PutMapping("/reset")
+    public ResponseEntity<Student> resetDraft(
+            @RequestParam("studentId") Long studentId,
+            @RequestParam("makerUserId") Integer makerUserId
+    ) {
+        Student resetStudent = studentService.resetDraft(studentId, makerUserId);
+        return ResponseEntity.ok(resetStudent);
+    }
 
     @PostMapping("/db/save")
     public  ResponseEntity<Map<String, String>> saveToDatabase() {
