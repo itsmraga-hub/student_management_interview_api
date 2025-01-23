@@ -3,6 +3,8 @@ package com.api.student_management.entities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,18 +30,30 @@ public class Student {
     private Integer status = 1;
     private String photoPath = "";
 
+    private Integer editingStatus;
+    private Integer makerUserId;
+    private Integer checkerUserId;
+    private String checkerComments;
+    private Boolean isApproved;
+
+    private String draftFirstName;
+    private String draftLastName;
+    private LocalDateTime draftDOB;
+    private String draftStudentClass;
+    private Integer draftScore;
+    private String draftPhotoPath;
+
 //    public Student() {
 //    }
 
     public Student() {
-//        this.studentId = idCounter++;
         this.firstName = generateRandomString();
         this.lastName = generateRandomString();
         this.DOB = generateRandomDOB().atStartOfDay();
         this.studentClass = generateRandomClass();
         this.score = generateRandomScore(55, 85);
-        this.status = 1; // Default to active
-        this.photoPath = ""; // Default to empty
+        this.status = 1;
+        this.photoPath = "";
     }
 
     private String generateRandomString() {
@@ -118,6 +132,91 @@ public class Student {
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
     }
+
+    public Integer getEditingStatus() {
+        return editingStatus;
+    }
+    public void setEditingStatus(Integer editingStatus) {
+        this.editingStatus = editingStatus;
+    }
+
+    public Integer getMakerUserId() {
+        return makerUserId;
+    }
+    public void setMakerUserId(Integer makerUserId) {
+        this.makerUserId = makerUserId;
+    }
+
+    public Integer getCheckerUserId() {
+        return checkerUserId;
+    }
+    public void setCheckerUserId(Integer checkerUserId) {
+        this.checkerUserId = checkerUserId;
+    }
+
+    public String getCheckerComments() {
+        return checkerComments;
+    }
+    public void setCheckerComments(String checkerComments) {
+        this.checkerComments = checkerComments;
+    }
+
+    public Boolean getIsApproved() {
+        return isApproved;
+    }
+
+    public void setIsApproved(Boolean isApproved) {
+        this.isApproved = isApproved;
+    }
+
+    public String getDraftFirstName() {
+        return draftFirstName;
+    }
+
+    public void setDraftFirstName(String draftFirstName) {
+        this.draftFirstName = draftFirstName;
+    }
+
+    public String getDraftLastName() {
+        return draftLastName;
+    }
+
+    public void setDraftLastName(String draftLastName) {
+        this.draftLastName = draftLastName;
+    }
+
+    public LocalDateTime getDraftDOB() {
+        return draftDOB;
+    }
+
+    public void setDraftDOB(LocalDateTime draftDOB) {
+        this.draftDOB = draftDOB;
+    }
+
+    public String getDraftStudentClass() {
+        return draftStudentClass;
+    }
+
+    public void setDraftStudentClass(String draftStudentClass) {
+        this.draftStudentClass = draftStudentClass;
+    }
+
+    public Integer getDraftScore() {
+        return draftScore;
+    }
+
+    public void setDraftScore(Integer draftScore) {
+        this.draftScore = draftScore;
+    }
+
+    public String getDraftPhotoPath() {
+        return draftPhotoPath;
+    }
+
+    public void setDraftPhotoPath(String draftPhotoPath) {
+        this.draftPhotoPath = draftPhotoPath;
+    }
+
 
     @Override
     public String toString() {
