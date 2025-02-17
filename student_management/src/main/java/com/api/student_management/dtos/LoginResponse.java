@@ -1,25 +1,26 @@
 package com.api.student_management.dtos;
 
+//import lombok.Getter;
+
 public class LoginResponse {
+//    @Getter
     private String token;
 
     private long expiresIn;
 
+    //    // Getters and setters...
     public String getToken() {
         return token;
     }
-
-//    // Getters and setters...
-    public LoginResponse setToken(String token) {
-        this.token = token;
-        return this;
+    public long getExpiresIn() {
+        return expiresIn;
     }
-//    public long getExpiresIn() {
-//        return expiresIn;
-//    }
-    public LoginResponse setExpiresIn(long expiresIn) {
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setExpiresIn(long expiresIn) {
         this.expiresIn = expiresIn;
-        return this;
     }
 //    public LoginResponse() {
 //    }

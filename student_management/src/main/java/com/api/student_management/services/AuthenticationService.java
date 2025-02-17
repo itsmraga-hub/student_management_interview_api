@@ -51,14 +51,15 @@ public class AuthenticationService {
 //        logger.info("User password: {}",user.getPassword());
 
         if (!passwordEncoder.matches(input.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            return null;
+//            throw new RuntimeException("Invalid password");
         }
-//        authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(
-//                        input.getEmail(),
-//                        input.getPassword()
-//                )
-//        );
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        input.getEmail(),
+                        input.getPassword()
+                )
+        );
 
 
 //        logger.info("User authenticated 222: {}", input.getEmail());
